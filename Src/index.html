@@ -86,9 +86,32 @@
 	
 	<script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('Service Worker registrado con éxito.'))
-      .catch((err) => console.log('Error al registrar el Service Worker:', err));
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then((reg) => {
+          console.log('Service Worker registrado.');
+
+          // LE DECIMOS AL IPHONE QUE REVISE SI HAY CAMBIOS EN GITHUB
+          if (navigator.onLine) {
+            reg.update();
+          }
+
+          // SI ENCUENTRA UN CONTROLADOR NUEVO (CAMBIOS EN GITHUB), FUERZA LA ACTUALIZACIÓN
+          reg.onupdatefound = () => {
+            const installingWorker = reg.installing;
+            installingWorker.onstatechange = () => {
+              if (installingWorker.state === 'installed') {
+                if (navigator.serviceWorker.controller) {
+                  // Avisa y recarga la app automáticamente con lo nuevo
+                  console.log('Nueva versión detectada. Actualizando...');
+                  window.location.reload();
+                }
+              }
+            };
+          };
+        })
+        .catch((err) => console.log('Error al registrar:', err));
+    });
   }
 </script>
 

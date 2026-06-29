@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cancionero-autocache-v1';
+const CACHE_NAME = 'cancionero-autocache-v2';
 
 // Solo guardamos lo mínimo imprescindible al instalar la app por primera vez
 const PRECACHE_ASSETS = [
