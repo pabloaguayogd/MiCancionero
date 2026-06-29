@@ -1,5 +1,4 @@
-# No calculations needed, just creating the markdown text for the updated README file.
-readme_content = """# 🎵 Mi Cancionero Offline (PWA) - Guía Actualizada
+# 🎵 Mi Cancionero Offline (PWA) - Guía Actualizada
 
 ¡Tu cancionero personal ahora es 100% automático! Hemos mejorado el sistema para que **no tengas que modificar nunca más el archivo `sw.js`** cuando añadas canciones. El sistema descarga y almacena todo de manera dinámica en tu iPhone.
 
