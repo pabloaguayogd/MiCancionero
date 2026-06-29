@@ -1,44 +1,37 @@
-const CACHE_NAME = 'cancionero-v1';
-// Lista de archivos que quieres que se guarden para usar sin internet
-const ASSETS = [
+const CACHE_NAME = 'cancionero-autocache-v1';
+
+// Solo guardamos lo mínimo imprescindible al instalar la app por primera vez
+const PRECACHE_ASSETS = [
   'index.html',
   'manifest.json',
-  'icono.png',
-  'canciones/rayando-el-sol.html',
-  'canciones/tu-calorro.html',
-  'canciones/nana-triste.html',
-  'canciones/fuentes-de-ortiz.html'
+  'icono.png'
 ];
 
-// Instalar el Service Worker y guardar los archivos en caché
+// Instalar la app con los archivos base
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
 });
 
-// Activar y limpiar cachés antiguas
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    })
-  );
-});
-
-// Responder desde la caché cuando no haya internet
+// Interceptar las peticiones (La magia automática ocurre aquí)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
+    // 1. Intentamos buscar el archivo en internet primero
+    fetch(e.request)
+      .then((response) => {
+        // Si la respuesta es válida, guardamos una copia en la caché automáticamente
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // 2. Si falla internet (modo avión), lo busca en la caché
+        return caches.match(e.request);
+      })
   );
 });
