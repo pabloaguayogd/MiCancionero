@@ -1,26 +1,39 @@
-const CACHE_NAME = 'cancionero-autocache-v2';
-
-// Solo guardamos lo mínimo imprescindible al instalar la app por primera vez
+const CACHE_NAME = 'cancionero-v3';
 const PRECACHE_ASSETS = [
   'index.html',
   'manifest.json',
   'icono.png'
 ];
 
-// Instalar la app con los archivos base
+// Forzar la instalación del nuevo Service Worker sin esperar
 self.addEventListener('install', (e) => {
+  self.skipWaiting(); 
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
 });
 
-// Interceptar las peticiones (La magia automática ocurre aquí)
+// LIMPIEZA ABSOLUTA: Borra cualquier caché vieja que esté bloqueando a Safari
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('Borrando caché antigua bloqueada:', key);
+            return caches.delete(key);
+          }
+        })
+      ).then(() => self.clients.claim()); // Toma el control de Safari ya mismo
+    })
+  );
+});
+
+// Estrategia combinada: Ir a internet, y si hay red, machacar la caché con lo nuevo
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    // 1. Intentamos buscar el archivo en internet primero
     fetch(e.request)
       .then((response) => {
-        // Si la respuesta es válida, guardamos una copia en la caché automáticamente
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -29,9 +42,6 @@ self.addEventListener('fetch', (e) => {
         }
         return response;
       })
-      .catch(() => {
-        // 2. Si falla internet (modo avión), lo busca en la caché
-        return caches.match(e.request);
-      })
+      .catch(() => caches.match(e.request))
   );
 });
