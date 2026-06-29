@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cancionero Offline</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; }
+        h1 { text-align: center; color: #00ff88; }
+        .buscador { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: none; font-size: 16px; }
+        .lista-canciones { list-style: none; padding: 0; }
+        .cancion-item { background: #1e1e1e; margin: 10px 0; border-radius: 8px; }
+        .cancion-item a { display: block; padding: 15px; color: #fff; text-decoration: none; font-size: 18px; }
+        .cancion-item a span { color: #aaa; font-size: 14px; display: block; }
+        .cancion-item:hover { background: #2a2a2a; }
+    </style>
+</head>
+<body>
+
+    <h1>🎵 Mi Cancionero</h1>
+    <input type="text" id="buscador" class="buscador" placeholder="Buscar canción o artista..." onkeyup="filtrar()">
+
+    <ul class="lista-canciones" id="lista">
+        <li class="cancion-item">
+            <a href="canciones/rayando-el-sol.html">
+                Rayando el Sol
+                <span>Maná</span>
+            </a>
+        </li>
+        <li class="cancion-item">
+            <a href="canciones/tu-calorro.html">
+                Tu Calorro
+                <span>Estopa</span>
+            </a>
+        </li>
+    </ul>
+
+    <script>
+        // Función simple para buscar en la lista
+        function filtrar() {
+            let input = document.getElementById('buscador').value.toLowerCase();
+            let items = document.getElementsByClassName('cancion-item');
+            
+            for (let i = 0; i < items.length; i++) {
+                let texto = items[i].innerText.toLowerCase();
+                items[i].style.display = texto.includes(input) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
